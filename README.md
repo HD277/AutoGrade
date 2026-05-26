@@ -6,11 +6,11 @@ A modern, automated code grading platform built in Python. It executes user-subm
 
 ## Features
 
-- 🖥️ **Sleek Web Frontend**: A premium, dark-mode browser interface to view problems, write Python code with line numbers, run tests, see live status updates, and create custom coding problems.
-- ⚙️ **Concurrently Graded Submissions**: Submissions are queued using a thread-pool executor so the Flask API remains responsive.
-- 🔒 **Sandboxed Execution**: Subprocesses are spawned in isolated temporary directories with blocklists for dangerous imports (such as `subprocess`, `socket`, `requests`, `os.system`, and `ctypes`).
-- 📁 **Unified SQLite Database**: Flat-file database layout storing problems, submissions, and test results with automatic seeding of sample problems.
-- 🐳 **Docker Support**: Exposes the application instantly through a lightweight container configuration.
+- **Sleek Web Frontend**: A premium, dark-mode browser interface to view problems, write Python code with line numbers, run tests, see live status updates, and create custom coding problems.
+- **Concurrently Graded Submissions**: Submissions are queued using a thread-pool executor so the Flask API remains responsive.
+- **Sandboxed Execution**: Subprocesses are spawned in isolated temporary directories with blocklists for dangerous imports (such as `subprocess`, `socket`, `requests`, `os.system`, and `ctypes`).
+- **Unified SQLite Database**: Flat-file database layout storing problems, submissions, and test results with automatic seeding of sample problems.
+- **Docker Support**: Exposes the application instantly through a lightweight container configuration.
 
 ---
 
