@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGrade Sandbox — Automated Code Grader</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Background Glow Blobs -->
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar: Problems List & Actions -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>AutoGrade</span>
+                </div>
+                <button id="btn-open-create" class="btn-create" title="Create Problem">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div class="problems-section">
+                <div class="section-title-container">
+                    <h3>Coding Problems</h3>
+                    <button id="btn-refresh-problems" class="btn-icon" title="Refresh list">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+                <div id="problems-list" class="problems-list">
+                    <!-- Dynamic Problem Items -->
+                    <div class="loader-container">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <span class="status-indicator online"></span>
+                    <span>Server Status: Online</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Problem Details Header -->
+            <section class="problem-display glass-panel">
+                <div class="problem-display-header">
+                    <h1 id="prob-title">Select a problem to start</h1>
+                    <div class="problem-meta">
+                        <span class="meta-tag"><i class="fa-solid fa-clock"></i> <span id="meta-time">0ms</span></span>
+                        <span class="meta-tag"><i class="fa-solid fa-memory"></i> <span id="meta-memory">0MB</span></span>
+                    </div>
+                </div>
+                <p id="prob-desc" class="problem-description">
+                    Choose a problem from the sidebar on the left or create a custom problem to test the code grading sandbox.
+                </p>
+            </section>
+
+            <!-- Editor Pane -->
+            <section class="editor-pane glass-panel">
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <i class="fa-brands fa-python"></i>
+                        <span>solution.py</span>
+                    </div>
+                    <button id="btn-submit" class="btn-submit" disabled>
+                        <span>Run Tests</span>
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                </div>
+                <div class="editor-wrapper">
+                    <div class="line-numbers" id="line-numbers">1</div>
+                    <textarea id="code-editor" spellcheck="false" placeholder="# Write your python code here...&#10;# Example:&#10;# val = int(input())&#10;# print(val * 2)" disabled></textarea>
+                </div>
+            </section>
+
+            <!-- Output/Results Console -->
+            <section class="output-pane glass-panel">
+                <div class="output-header">
+                    <h2><i class="fa-solid fa-terminal"></i> Execution Console</h2>
+                    <div id="grading-badge" class="grading-badge hide">
+                        <span id="badge-text">Pending</span>
+                    </div>
+                </div>
+                <div id="output-placeholder" class="output-placeholder">
+                    <i class="fa-solid fa-code"></i>
+                    <p>Run your code to view sandbox test execution results here.</p>
+                </div>
+                <div id="output-content" class="output-content hide">
+                    <!-- Overall Stats -->
+                    <div class="overall-stats">
+                        <div class="score-card">
+                            <span class="score-value" id="stats-score">0%</span>
+                            <span class="score-label">Score</span>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-num text-success" id="stats-passed">0</span>
+                                <span class="stat-lbl">Passed</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-num text-danger" id="stats-failed">0</span>
+                                <span class="stat-lbl">Failed</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-num" id="stats-total">0</span>
+                                <span class="stat-lbl">Total Tests</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Individual Test Cases -->
+                    <div class="test-results-list" id="test-results-list">
+                        <!-- Dynamic Test Results -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Create Problem Modal Overlay -->
+    <div id="create-modal" class="modal-overlay hide">
+        <div class="modal-card glass-panel">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-plus-circle"></i> Create Custom Problem</h2>
+                <button id="btn-close-create" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="create-problem-form" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-prob-id">Problem ID (Unique Slug)</label>
+                        <input type="text" id="new-prob-id" required placeholder="e.g. triple-number" pattern="^[a-z0-9\-]+$">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-prob-title">Title</label>
+                        <input type="text" id="new-prob-title" required placeholder="e.g. Triple the Input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="new-prob-desc">Description</label>
+                    <textarea id="new-prob-desc" rows="3" required placeholder="Describe the inputs, expected logic, and outputs..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-prob-time">Time Limit (ms)</label>
+                        <input type="number" id="new-prob-time" value="5000" min="100" max="10000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-prob-memory">Memory Limit (MB)</label>
+                        <input type="number" id="new-prob-memory" value="128" min="8" max="512" required>
+                    </div>
+                </div>
+
+                <!-- Test Cases Section -->
+                <div class="modal-test-cases-section">
+                    <div class="section-title-container">
+                        <h3>Test Cases</h3>
+                        <button type="button" id="btn-add-test" class="btn-secondary btn-sm">
+                            <i class="fa-solid fa-plus"></i> Add Test Case
+                        </button>
+                    </div>
+                    <div id="modal-test-cases-list" class="modal-test-cases-list">
+                        <!-- Dynamic Test Inputs -->
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancel-create" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Problem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main JavaScript File -->
+    <script src="app.js"></script>
+</body>
+</html>
