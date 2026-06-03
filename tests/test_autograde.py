@@ -1,7 +1,4 @@
-"""
-AutoGrade Test Suite
-Tests for grading engine, sandbox security, and API endpoints.
-"""
+"""Unit tests for the AutoGrade grader sandbox, engine, and REST API."""
 
 import pytest
 import json
@@ -12,8 +9,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from grader.engine import SandboxedRunner, Grader
 
-
-# ─── SandboxedRunner Tests ────────────────────────────────────────────────────
 
 class TestSandboxedRunner:
 
@@ -63,7 +58,7 @@ class TestSandboxedRunner:
     def test_multiline_output(self):
         code = "for i in range(5):\n    print(i)"
         result = self.runner.run(code)
-        assert result.stdout == "0\n1\n2\n3\n4"
+        assert result.stdout.replace("\r\n", "\n") == "0\n1\n2\n3\n4"
 
     def test_execution_time_tracked(self):
         code = "import time\ntime.sleep(0.1)\nprint('done')"
@@ -71,8 +66,6 @@ class TestSandboxedRunner:
         assert result.execution_time_ms >= 100
         assert result.stdout == "done"
 
-
-# ─── Grader Tests ─────────────────────────────────────────────────────────────
 
 class TestGrader:
 
@@ -91,10 +84,10 @@ class TestGrader:
         assert all(r.passed for r in results)
 
     def test_partial_pass(self):
-        code = "n = int(input())\nprint(n + 1)"  # Wrong logic
+        code = "n = int(input())\nprint(n + 1)"
         test_cases = [
-            {"name": "Test 1", "input": "1", "expected_output": "1"},  # Fail
-            {"name": "Test 2", "input": "4", "expected_output": "5"},  # Pass
+            {"name": "Test 1", "input": "1", "expected_output": "1"},
+            {"name": "Test 2", "input": "4", "expected_output": "5"},
         ]
         results = self.grader.grade(code, test_cases)
         assert results[0].passed is False
@@ -128,25 +121,22 @@ class TestGrader:
         assert all(r.passed for r in results)
 
 
-# ─── API Tests ────────────────────────────────────────────────────────────────
-
 class TestAPI:
 
     @pytest.fixture
     def client(self):
         import os
-        from app import create_app
-        from api.database import init_db
-        
         test_db = "test_autograde.db"
         os.environ["DB_PATH"] = test_db
         
-        # Ensure fresh database setup
         if os.path.exists(test_db):
             try:
                 os.remove(test_db)
             except Exception:
                 pass
+        
+        from app import create_app
+        from api.database import init_db
         
         app = create_app()
         app.config["TESTING"] = True
@@ -157,7 +147,6 @@ class TestAPI:
         with app.test_client() as client:
             yield client
             
-        # Cleanup database file after tests
         if os.path.exists(test_db):
             try:
                 os.remove(test_db)

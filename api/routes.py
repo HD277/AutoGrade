@@ -1,4 +1,4 @@
-"""AutoGrade REST API Routes"""
+"""REST API endpoints for the AutoGrade platform."""
 import json, uuid, logging
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
@@ -10,7 +10,7 @@ api_bp = Blueprint("api", __name__)
 logger = logging.getLogger(__name__)
 _pool = ThreadPoolExecutor(max_workers=4)
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# Helpers
 
 def _run_grading_job(submission_id, code, test_cases, time_limit_ms, memory_limit_mb):
     db = get_db()
@@ -37,7 +37,6 @@ def _run_grading_job(submission_id, code, test_cases, time_limit_ms, memory_limi
     finally:
         db.close()
 
-# ── Submit ────────────────────────────────────────────────────────────────────
 
 @api_bp.route("/submit", methods=["POST"])
 def submit():
@@ -72,7 +71,6 @@ def submit():
     return jsonify({"submission_id": sub_id, "status": "pending",
                     "message": "Poll /api/status/<submission_id> for results."}), 202
 
-# ── Status ────────────────────────────────────────────────────────────────────
 
 @api_bp.route("/status/<submission_id>")
 def get_status(submission_id):
@@ -81,7 +79,6 @@ def get_status(submission_id):
         return jsonify({"error": "Submission not found"}), 404
     return jsonify(sub)
 
-# ── Problems ──────────────────────────────────────────────────────────────────
 
 @api_bp.route("/problems", methods=["POST"])
 def create_problem():
@@ -108,7 +105,6 @@ def get_problem_route(problem_id):
     if not prob: return jsonify({"error": "Not found"}), 404
     return jsonify(prob)
 
-# ── Batch ─────────────────────────────────────────────────────────────────────
 
 @api_bp.route("/batch", methods=["POST"])
 def batch_submit():
@@ -138,7 +134,6 @@ def batch_submit():
     db.commit(); db.close()
     return jsonify({"submitted": len(ids), "submission_ids": ids}), 202
 
-# ── Submissions ───────────────────────────────────────────────────────────────
 
 @api_bp.route("/submissions")
 def get_submissions():
@@ -146,7 +141,6 @@ def get_submissions():
     prob_id = request.args.get("problem_id")
     return jsonify(list_submissions(limit=limit, problem_id=prob_id))
 
-# ── Health ────────────────────────────────────────────────────────────────────
 
 @api_bp.route("/health")
 def health():

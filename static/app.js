@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ─── DOM Elements ────────────────────────────────────────────────────────
     const problemsList = document.getElementById('problems-list');
     const refreshProblemsBtn = document.getElementById('btn-refresh-problems');
     
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsTotal = document.getElementById('stats-total');
     const testResultsList = document.getElementById('test-results-list');
     
-    // Modal Elements
     const createModal = document.getElementById('create-modal');
     const openCreateBtn = document.getElementById('btn-open-create');
     const closeCreateBtn = document.getElementById('btn-close-create');
@@ -32,30 +30,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const addTestBtn = document.getElementById('btn-add-test');
     const modalTestCasesList = document.getElementById('modal-test-cases-list');
 
-    // ─── State ───────────────────────────────────────────────────────────────
     let problems = [];
     let selectedProblem = null;
     let pollingInterval = null;
 
-    // ─── Initialization ──────────────────────────────────────────────────────
     fetchProblems();
     setupEventListeners();
 
-    // ─── Event Listeners ─────────────────────────────────────────────────────
     function setupEventListeners() {
-        // Refresh Problems
         refreshProblemsBtn.addEventListener('click', fetchProblems);
 
-        // Code Editor Line Numbers & Scrolling
         codeEditor.addEventListener('input', updateLineNumbers);
         codeEditor.addEventListener('scroll', () => {
             lineNumbers.scrollTop = codeEditor.scrollTop;
         });
 
-        // Submit Solution
         submitBtn.addEventListener('click', submitSolution);
 
-        // Modal Open/Close
         openCreateBtn.addEventListener('click', () => {
             resetCreateModal();
             createModal.classList.remove('hide');
@@ -64,14 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
         closeCreateBtn.addEventListener('click', closeModal);
         cancelCreateBtn.addEventListener('click', closeModal);
 
-        // Add Test Case to Form
         addTestBtn.addEventListener('click', () => addTestCaseRow());
 
-        // Create Problem Submission
         createProblemForm.addEventListener('submit', handleCreateProblem);
     }
 
-    // ─── Code Editor Sync ────────────────────────────────────────────────────
     function updateLineNumbers() {
         const lines = codeEditor.value.split('\n').length;
         let numbers = '';
@@ -81,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lineNumbers.innerHTML = numbers;
     }
 
-    // ─── API Requests: Problems ──────────────────────────────────────────────
     async function fetchProblems() {
         showProblemsLoader();
         try {
@@ -125,19 +112,16 @@ document.addEventListener('DOMContentLoaded', () => {
             else item.classList.remove('active');
         });
 
-        // Set content
         probTitle.textContent = prob.title;
         probDesc.textContent = prob.description;
         metaTime.textContent = `${prob.time_limit_ms}ms`;
         metaMemory.textContent = `${prob.memory_limit_mb}MB`;
 
-        // Enable editor
         codeEditor.removeAttribute('disabled');
         codeEditor.value = "# Write your python solution here\n# Input is received via stdin, output must be printed to stdout\n\n";
         updateLineNumbers();
         submitBtn.removeAttribute('disabled');
 
-        // Reset console output
         resetConsole();
     }
 
@@ -149,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // ─── API Requests: Submissions ───────────────────────────────────────────
     async function submitSolution() {
         if (!selectedProblem) return;
         
@@ -184,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startPolling(subId) {
-        // Clear existing interval
         if (pollingInterval) clearInterval(pollingInterval);
         
         showGradingState("pending");
@@ -211,19 +193,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // ─── Render Console Results ──────────────────────────────────────────────
     function renderResults(subData) {
         outputPlaceholder.classList.add('hide');
         outputContent.classList.remove('hide');
 
-        // Score Card setup
         const summary = subData.summary || { total: 0, passed: 0, failed: 0, score: 0 };
         statsScore.textContent = `${summary.score}%`;
         statsPassed.textContent = summary.passed;
         statsFailed.textContent = summary.failed;
         statsTotal.textContent = summary.total;
-
-        // Custom styling based on score
         const scoreRing = document.querySelector('.score-card');
         if (summary.score === 100) {
             scoreRing.style.borderColor = 'var(--success-color)';
@@ -236,7 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
             scoreRing.style.boxShadow = '0 0 12px var(--warning-glow)';
         }
 
-        // Render individual cards
         testResultsList.innerHTML = '';
         const results = subData.results || [];
         
@@ -253,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusClass = isPassed ? 'passed' : 'failed';
             const icon = isPassed ? 'fa-circle-check' : 'fa-circle-xmark';
             
-            // Build card header
             card.innerHTML = `
                 <div class="test-card-header" data-index="${idx}">
                     <div class="test-info">
@@ -286,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-            // Toggle Expand Details
             const header = card.querySelector('.test-card-header');
             const details = card.querySelector('.test-details');
             const chevron = card.querySelector('.fa-chevron-down');
@@ -305,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ─── Modal Problem Creation ──────────────────────────────────────────────
     function resetCreateModal() {
         createProblemForm.reset();
         modalTestCasesList.innerHTML = '';
@@ -358,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeLimit = parseInt(document.getElementById('new-prob-time').value);
         const memoryLimit = parseInt(document.getElementById('new-prob-memory').value);
 
-        // Gather test cases
         const testRows = modalTestCasesList.querySelectorAll('.modal-test-row');
         const testCases = [];
         testRows.forEach(row => {
@@ -388,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(err.error || "Failed to create problem");
             }
 
-            // Success: Close modal, refresh list, select new problem
             const newProb = await res.json();
             createModal.classList.add('hide');
             await fetchProblems();
@@ -399,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ─── UI Helper Actions ───────────────────────────────────────────────────
     function setSubmittingState(isSubmitting) {
         if (isSubmitting) {
             submitBtn.setAttribute('disabled', 'true');

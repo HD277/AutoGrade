@@ -4,22 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoGrade Sandbox — Automated Code Grader</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <!-- Background Glow Blobs -->
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>
 
     <div class="app-container">
-        <!-- Sidebar: Problems List & Actions -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -39,7 +34,6 @@
                     </button>
                 </div>
                 <div id="problems-list" class="problems-list">
-                    <!-- Dynamic Problem Items -->
                     <div class="loader-container">
                         <div class="spinner"></div>
                     </div>
@@ -54,9 +48,7 @@
             </div>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Problem Details Header -->
             <section class="problem-display glass-panel">
                 <div class="problem-display-header">
                     <h1 id="prob-title">Select a problem to start</h1>
@@ -70,7 +62,6 @@
                 </p>
             </section>
 
-            <!-- Editor Pane -->
             <section class="editor-pane glass-panel">
                 <div class="editor-header">
                     <div class="editor-title">
@@ -88,7 +79,6 @@
                 </div>
             </section>
 
-            <!-- Output/Results Console -->
             <section class="output-pane glass-panel">
                 <div class="output-header">
                     <h2><i class="fa-solid fa-terminal"></i> Execution Console</h2>
@@ -101,7 +91,6 @@
                     <p>Run your code to view sandbox test execution results here.</p>
                 </div>
                 <div id="output-content" class="output-content hide">
-                    <!-- Overall Stats -->
                     <div class="overall-stats">
                         <div class="score-card">
                             <span class="score-value" id="stats-score">0%</span>
@@ -123,16 +112,13 @@
                         </div>
                     </div>
 
-                    <!-- Individual Test Cases -->
                     <div class="test-results-list" id="test-results-list">
-                        <!-- Dynamic Test Results -->
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Create Problem Modal Overlay -->
     <div id="create-modal" class="modal-overlay hide">
         <div class="modal-card glass-panel">
             <div class="modal-header">
@@ -167,7 +153,6 @@
                     </div>
                 </div>
 
-                <!-- Test Cases Section -->
                 <div class="modal-test-cases-section">
                     <div class="section-title-container">
                         <h3>Test Cases</h3>
@@ -176,7 +161,6 @@
                         </button>
                     </div>
                     <div id="modal-test-cases-list" class="modal-test-cases-list">
-                        <!-- Dynamic Test Inputs -->
                     </div>
                 </div>
 
@@ -188,7 +172,6 @@
         </div>
     </div>
 
-    <!-- Main JavaScript File -->
     <script src="app.js"></script>
 </body>
 </html>

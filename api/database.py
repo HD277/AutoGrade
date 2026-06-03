@@ -45,7 +45,6 @@ def init_db():
     """)
     conn.commit()
 
-    # Seed default problems if table is empty
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM problems")
     if cursor.fetchone()[0] == 0:
@@ -123,7 +122,6 @@ def init_db():
         conn.commit()
     conn.close()
 
-# ─── Query Helpers ────────────────────────────────────────────────────────────
 
 def get_submission(sub_id):
     db = get_db()

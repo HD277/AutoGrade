@@ -1,10 +1,4 @@
-"""
-Sandboxed Python Grading Engine
-- Resource-limited subprocess execution
-- Per-test timeout enforcement
-- CPU & memory constraints
-- Secure file isolation
-"""
+"""Sandboxed Python grading engine that executes user submissions under resource limits."""
 
 import sys
 import subprocess
@@ -23,7 +17,6 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# ─── Execution Result ──────────────────────────────────────────────────────────
 
 @dataclass
 class ExecutionResult:
@@ -35,33 +28,18 @@ class ExecutionResult:
     memory_exceeded: bool
 
 
-# ─── Resource Limiter ─────────────────────────────────────────────────────────
-
 def _set_resource_limits(memory_limit_mb: int):
-    """Applied inside the child process before exec."""
+    """Applies RLIMIT configurations inside the spawned process."""
     if resource is None:
         return
     memory_bytes = memory_limit_mb * 1024 * 1024
-    # Limit virtual memory
     resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
-    # Limit CPU time (seconds) — hard limit kills process
     resource.setrlimit(resource.RLIMIT_CPU, (10, 10))
-    # Prevent forking new processes
     resource.setrlimit(resource.RLIMIT_NPROC, (1, 1))
-    # Limit file size writes
-    resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024, 1024 * 1024))  # 1MB
-
-
-# ─── Sandboxed Runner ─────────────────────────────────────────────────────────
+    resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024, 1024 * 1024))
 
 class SandboxedRunner:
-    """
-    Executes Python code in an isolated subprocess with:
-      - Time limit enforcement (wall clock)
-      - Memory limit via resource.setrlimit
-      - No network, no file writes beyond tempdir
-      - stdin injection for test inputs
-    """
+    """Runs Python submissions in a sandboxed subprocess."""
 
     BLOCKED_IMPORTS = [
         "socket", "requests", "urllib", "http.client",
@@ -74,7 +52,7 @@ class SandboxedRunner:
         self.memory_limit_mb = memory_limit_mb
 
     def _inject_safety_wrapper(self, code: str) -> str:
-        """Wrap user code with import restrictions."""
+        """Adds standard import blocks for safety before running."""
         blocked = json.dumps(self.BLOCKED_IMPORTS)
         wrapper = f"""
 import sys
@@ -90,7 +68,7 @@ def _safe_import(name, *args, **kwargs):
 
 builtins.__import__ = _safe_import
 
-# ── User Code ──
+# User Code
 {code}
 """
         return wrapper
@@ -172,8 +150,6 @@ builtins.__import__ = _safe_import
                 pass
 
 
-# ─── Grader ───────────────────────────────────────────────────────────────────
-
 @dataclass
 class TestCaseResult:
     test_name: str
@@ -186,10 +162,7 @@ class TestCaseResult:
 
 
 class Grader:
-    """
-    Runs all test cases for a submission using a thread pool.
-    Each test case is independently sandboxed.
-    """
+    """Grades user submissions concurrently against test cases."""
 
     def __init__(self, time_limit_ms: int = 5000, memory_limit_mb: int = 128, max_workers: int = 4):
         self.time_limit_ms = time_limit_ms
